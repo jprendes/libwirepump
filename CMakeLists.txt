@@ -3,11 +3,18 @@ cmake_minimum_required(VERSION 3.25)
 project(wirepump VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(cista)
+include(FetchContent)
+FetchContent_Declare(cista
+  GIT_REPOSITORY https://github.com/felixguendling/cista.git
+  GIT_TAG        55e67f3a552ec79ab6d094d7da43f0caaaa2bde5
+)
+FetchContent_MakeAvailable(cista)
+FetchContent_GetProperties(cista)
 
 file(GLOB_RECURSE wirepump-include-files include/*.hpp)
 
 add_library(wirepump INTERFACE)
+set_property(TARGET wirepump PROPERTY CXX_STANDARD 17)
 target_link_libraries(wirepump INTERFACE cista)
 target_include_directories(wirepump INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(wirepump INTERFACE cxx_std_17)
@@ -22,7 +29,7 @@ add_custom_command(
   COMMAND bundler
     ${CMAKE_CURRENT_SOURCE_DIR}/include/wirepump.hpp
     wirepump=${CMAKE_CURRENT_SOURCE_DIR}/include/wirepump
-    cista=${CMAKE_CURRENT_SOURCE_DIR}/cista/include/cista
+    cista=${cista_SOURCE_DIR}/include/cista
     | sed -E 's/namespace cista/namespace wirepump::cista/'
     > wirepump.hpp
 )

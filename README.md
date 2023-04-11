@@ -7,7 +7,6 @@ A small header-only C++ library for serializing and deserializing data.
 ```bash
 git clone https://github.com/jprendes/libwirepump.git
 cd libwirepump
-git submodule update --init --recursive
 cmake -B ./build/ -G Ninja
 cmake --build ./build/
 sudo cmake --install ./build/
