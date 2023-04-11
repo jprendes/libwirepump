@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.25)
 project(wirepump VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(wirepump_TESTS "Build wirepump tests" ON)
+
 include(FetchContent)
 FetchContent_Declare(cista
   GIT_REPOSITORY https://github.com/felixguendling/cista.git
@@ -19,8 +21,11 @@ target_link_libraries(wirepump INTERFACE cista)
 target_include_directories(wirepump INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(wirepump INTERFACE cxx_std_17)
 
-add_subdirectory(tests)
 add_subdirectory(bundler)
+
+if(wirepump_TESTS)
+add_subdirectory(tests)
+endif()
 
 # Generate the single-header bundle
 add_custom_command(
