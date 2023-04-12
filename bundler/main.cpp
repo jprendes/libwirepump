@@ -17,14 +17,22 @@ std::smatch match(std::string & input, std::string const & pattern) {
 struct bundler {
   private:
     std::unordered_set<std::string> m_done;
+    std::unordered_set<std::string> m_includes_done;
     std::unordered_map<std::string, std::string> m_mapping;
     std::stringstream m_output;
+    std::stringstream m_includes;
+    std::stringstream m_code;
 
   public:
     std::string run(std::string entry) {
         m_done.clear();
         m_output.str("");
+        m_includes.str("");
+        m_code.str("");
         add(entry);
+        m_output << "#pragma once\n\n";
+        m_output << m_includes.str();
+        m_output << m_code.str();
         return m_output.str();
     }
 
@@ -46,11 +54,20 @@ struct bundler {
         }
         
         while (std::getline(file, line)) {
-            auto pattern = R"xx(\s*#include\s*"([^/]+)/(.+)"\s*)xx";
-            if (auto m = match(line, pattern); !m.empty() && m_mapping.count(m[1])) {
+            auto quote_include = R"xx(\s*#include\s*"([^/]+)/(.+)"\s*)xx";
+            auto angled_include = R"xx(\s*#include\s*<([^>]+)>\s*)xx";
+            auto pragma_once = R"xx(\s*#pragma\s+once;?\s*)xx";
+            if (auto m = match(line, pragma_once); !m.empty()) {
+                // no-op
+            } else if (auto m = match(line, quote_include); !m.empty() && m_mapping.count(m[1])) {
                 add(m_mapping[m[1]] + "/" + std::string{m[2]});
+            } else if (auto m = match(line, angled_include); !m.empty()) {
+                if (m_includes_done.count(m[1]) == 0) {
+                    m_includes << line << '\n';
+                    m_includes_done.insert(m[1]);
+                }
             } else {
-                m_output << line << '\n';
+                m_code << line << '\n';
             }
         }
     }
