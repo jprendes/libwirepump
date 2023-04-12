@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.25)
 project(wirepump VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+add_compile_options("-fdiagnostics-color=always")
+
 option(wirepump_TESTS "Build wirepump tests" ON)
 
 include(FetchContent)
@@ -16,10 +18,10 @@ FetchContent_GetProperties(cista)
 file(GLOB_RECURSE wirepump-include-files include/*.hpp)
 
 add_library(wirepump INTERFACE)
-set_property(TARGET wirepump PROPERTY CXX_STANDARD 17)
+set_property(TARGET wirepump PROPERTY CXX_STANDARD 20)
 target_link_libraries(wirepump INTERFACE cista)
 target_include_directories(wirepump INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_features(wirepump INTERFACE cxx_std_17)
+target_compile_features(wirepump INTERFACE cxx_std_20)
 
 add_subdirectory(bundler)
 
@@ -42,7 +44,7 @@ add_custom_target(wirepump-single-header-build DEPENDS wirepump.hpp)
 
 add_library(wirepump-single-header INTERFACE)
 target_include_directories(wirepump-single-header INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
-target_compile_features(wirepump-single-header INTERFACE cxx_std_17)
+target_compile_features(wirepump-single-header INTERFACE cxx_std_20)
 add_dependencies(wirepump-single-header wirepump-single-header-build)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wirepump.hpp TYPE INCLUDE)

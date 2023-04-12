@@ -1,8 +1,7 @@
 #pragma once
 
-#include "wirepump/adapters/readable.hpp"
-#include "wirepump/adapters/writable.hpp"
-#include "wirepump/traits.hpp"
+#include "wirepump/adapters/stream.hpp"
+#include "wirepump/types.hpp"
 
 #include <type_traits>
 
@@ -20,7 +19,7 @@ struct serialized {
     template <typename Stream>
     friend
     Stream & operator<<(Stream & stream, serialized const & value) {
-        adapters::writable<Stream &>{stream}.write(value.wrapped);
+        write(stream, value.wrapped);
         return stream;
     }
 
@@ -28,7 +27,7 @@ struct serialized {
     friend
     Stream & operator>>(Stream & stream, serialized & value) {
         static_assert(!std::is_const_v<T>, "Can't write to a const value");
-        value.wrapped = adapters::readable<Stream &>{stream}.template read<T>();
+        read(stream, value.wrapped);
         return stream;
     }
 
@@ -36,7 +35,7 @@ struct serialized {
     friend
     Stream & operator>>(Stream & stream, serialized && value) {
         static_assert(!std::is_const_v<T>, "Can't write to a const value");
-        value.wrapped = adapters::readable<Stream &>{stream}.template read<T>();
+        read(stream, value.wrapped);
         return stream;
     }
 };

@@ -10,6 +10,6 @@ macro(make_test name)
     add_test(${name}-test-single-header ${name}-test-single-header)
 endmacro()
 
-foreach(test byte integers enum floating_point string tuple variant vector demo)
+foreach(test char integers enum floating_point string tuple variant vector demo)
     make_test(${test})
 endforeach()
