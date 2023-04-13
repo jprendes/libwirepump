@@ -16,13 +16,14 @@ concept EnumType = std::is_enum_v<T>;
 }
 
 template <typename Stream, concepts::EnumType T>
-auto read(Stream & c, T & v) -> traits::read_result<Stream> {
-    co_await read(c, (std::underlying_type_t<T>&)v);
-}
+struct impl<Stream, T> {
+    static auto read(Stream & c, T & v) -> read_result<Stream> {
+        co_await impl<Stream, std::underlying_type_t<T>>::read(c, (std::underlying_type_t<T>&)v);
+    }
 
-template <typename Stream, concepts::EnumType T>
-auto write(Stream & c, T const & v) -> traits::write_result<Stream> {
-    co_await write(c, (std::underlying_type_t<T>)v);
-}
+    static auto write(Stream & c, T const & v) -> write_result<Stream> {
+        co_await impl<Stream, std::underlying_type_t<T>>::write(c, (std::underlying_type_t<T>)v);
+    }
+};
 
 }

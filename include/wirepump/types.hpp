@@ -1,5 +1,7 @@
 #pragma once
 
+#include "wirepump/types/traits.hpp"
+
 #include "wirepump/types/byte.hpp"
 #include "wirepump/types/char.hpp"
 #include "wirepump/types/enum.hpp"

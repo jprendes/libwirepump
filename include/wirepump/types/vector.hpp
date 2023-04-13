@@ -10,24 +10,25 @@
 namespace wirepump {
 
 template <typename Stream, typename T>
-auto read(Stream & c, std::vector<T> & value) -> traits::read_result<Stream> {
-    size_t size;
-    co_await read(c, size);
-    value.clear();
-    value.reserve(size);
-    for (size_t i = 0; i < size; ++i) {
-        T elem;
-        co_await read(c, elem);
-        value.push_back(std::move(elem));
+struct impl<Stream, std::vector<T>> {
+    static auto read(Stream & c, std::vector<T> & value) -> read_result<Stream> {
+        size_t size;
+        co_await impl<Stream, size_t>::read(c, size);
+        value.clear();
+        value.reserve(size);
+        for (size_t i = 0; i < size; ++i) {
+            T elem;
+            co_await impl<Stream, T>::read(c, elem);
+            value.push_back(std::move(elem));
+        }
     }
-}
 
-template <typename Stream, typename T>
-auto write(Stream & c, std::vector<T> const & value) -> traits::write_result<Stream> {
-    co_await write(c, value.size());
-    for (auto const & entry : value) {
-        co_await write(c, entry);
+    static auto write(Stream & c, std::vector<T> const & value) -> write_result<Stream> {
+        co_await impl<Stream, size_t>::write(c, value.size());
+        for (auto const & entry : value) {
+            co_await impl<Stream, T>::write(c, entry);
+        }
     }
-}
+};
 
 }

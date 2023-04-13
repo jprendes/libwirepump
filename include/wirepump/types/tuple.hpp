@@ -8,17 +8,18 @@
 namespace wirepump {
 
 template <typename Stream, typename... Args>
-auto read(Stream & c, std::tuple<Args...> & value) -> traits::read_result<Stream> {
-    co_await std::apply([&c](auto& ...v) -> traits::read_result<Stream> {
-        (..., co_await read(c, v));
-    }, value);
-}
+struct impl<Stream, std::tuple<Args...>> {
+    static auto read(Stream & c, std::tuple<Args...> & value) -> read_result<Stream> {
+        co_await std::apply([&c](auto& ...v) -> read_result<Stream> {
+            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::read(c, v));
+        }, value);
+    }
 
-template <typename Stream, typename... Args>
-auto write(Stream & c, std::tuple<Args...> const & value) -> traits::write_result<Stream> {
-    co_await std::apply([&c](auto& ...v) -> traits::write_result<Stream> {
-        (..., co_await write(c, v));
-    }, value);
-}
+    static auto write(Stream & c, std::tuple<Args...> const & value) -> write_result<Stream> {
+        co_await std::apply([&c](auto const & ...v) -> write_result<Stream> {
+            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::write(c, v));
+        }, value);
+    }
+};
 
 }

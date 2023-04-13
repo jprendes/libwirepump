@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wirepump/types/traits.hpp"
+#include "wirepump/types/byte.hpp"
 
 #include <type_traits>
 
@@ -14,31 +15,32 @@ concept FloatingPointNumber = std::is_floating_point_v<T>;
 }
 
 template <typename Stream, concepts::FloatingPointNumber T>
-auto read(Stream & c, T & v) -> traits::read_result<Stream> {
-    union {
-        uint8_t bytes[sizeof(T)];
-        T value;
-    } value;
+struct impl<Stream, T> {
+    static auto read(Stream & c, T & v) -> read_result<Stream> {
+        union {
+            uint8_t bytes[sizeof(T)];
+            T value;
+        } value;
 
-    for (auto & byte : value.bytes) {
-        co_await read(c, byte);
+        for (auto & byte : value.bytes) {
+            co_await impl<Stream, uint8_t>::read(c, byte);
+        }
+
+        v = value.value;
     }
 
-    v = value.value;
-}
+    static auto write(Stream & c, T const & v) -> write_result<Stream> {
+        union {
+            uint8_t bytes[sizeof(T)];
+            T value;
+        } value;
 
-template <typename Stream, concepts::FloatingPointNumber T>
-auto write(Stream & c, T const & v) -> traits::write_result<Stream> {
-    union {
-        uint8_t bytes[sizeof(T)];
-        T value;
-    } value;
+        value.value = v;
 
-    value.value = v;
-
-    for (auto & byte : value.bytes) {
-        co_await write(c, byte);
+        for (auto & byte : value.bytes) {
+            co_await impl<Stream, uint8_t>::write(c, byte);
+        }
     }
-}
+};
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wirepump/types/traits.hpp"
+#include "wirepump/types/byte.hpp"
 
 #include <cstdint>
 #include <utility>
@@ -8,13 +9,14 @@
 namespace wirepump {
 
 template <typename Stream>
-auto read(Stream & c, char & ch) -> traits::read_result<Stream> {
-    co_await read(c, (uint8_t &)ch);
-}
+struct impl<Stream, char> {
+    static auto read(Stream & c, char & ch) -> read_result<Stream> {
+        co_await impl<Stream, uint8_t>::read(c, (uint8_t &)ch);
+    }
 
-template <typename Stream>
-auto write(Stream & c, char const & ch) -> traits::write_result<Stream> {
-    co_await write(c, (uint8_t)ch);
-}
+    static auto write(Stream & c, char const & ch) -> write_result<Stream> {
+        co_await impl<Stream, uint8_t>::write(c, ch);
+    }
+};
 
 }

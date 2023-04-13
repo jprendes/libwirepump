@@ -17,17 +17,18 @@ concept TupleLike = cista::to_tuple_works_v<T>;
 }
 
 template <typename Stream, concepts::TupleLike T>
-auto read(Stream & c, T & value) -> traits::read_result<Stream> {
-    co_await std::apply([&c](auto& ...v) -> traits::read_result<Stream> {
-        (..., co_await read(c, v));
-    }, cista::to_tuple(value));
-}
+struct impl<Stream, T> {
+    static auto read(Stream & c, T & value) -> read_result<Stream> {
+        co_await std::apply([&c](auto& ...v) -> read_result<Stream> {
+            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::read(c, v));
+        }, cista::to_tuple(value));
+    }
 
-template <typename Stream, concepts::TupleLike T>
-auto write(Stream & c, T const & value) -> traits::write_result<Stream> {
-    co_await std::apply([&c](auto& ...v) -> traits::write_result<Stream> {
-        (..., co_await write(c, v));
-    }, cista::to_tuple(value));
-}
+    static auto write(Stream & c, T const & value) -> write_result<Stream> {
+        co_await std::apply([&c](auto const & ...v) -> write_result<Stream> {
+            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::write(c, v));
+        }, cista::to_tuple(value));
+    }
+};
 
 }
