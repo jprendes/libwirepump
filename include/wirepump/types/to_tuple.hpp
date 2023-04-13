@@ -12,11 +12,11 @@ namespace wirepump {
 namespace concepts {
 
 template<typename T>
-concept TupleLike = cista::to_tuple_works_v<T>;
+concept convertible_to_tuple = cista::to_tuple_works_v<T>;
 
 }
 
-template <typename Stream, concepts::TupleLike T>
+template <typename Stream, concepts::convertible_to_tuple T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         co_await std::apply([&c](auto& ...v) -> read_result<Stream> {

@@ -10,11 +10,11 @@ namespace wirepump {
 namespace concepts {
 
 template<typename T>
-concept FloatingPointNumber = std::is_floating_point_v<T>;
+concept floating_point = std::is_floating_point_v<T>;
 
 }
 
-template <typename Stream, concepts::FloatingPointNumber T>
+template <typename Stream, concepts::floating_point T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & v) -> read_result<Stream> {
         union {

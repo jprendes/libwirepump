@@ -13,11 +13,11 @@ namespace wirepump {
 namespace concepts {
 
 template<typename T>
-concept SignedInteger = std::is_integral_v<T> && std::is_signed_v<T>;
+concept signed_integral = std::is_integral_v<T> && std::is_signed_v<T>;
 
 }
 
-template <typename Stream, concepts::SignedInteger T>
+template <typename Stream, concepts::signed_integral T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         using U = std::make_unsigned_t<T>;
