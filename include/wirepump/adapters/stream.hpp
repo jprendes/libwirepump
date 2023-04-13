@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "wirepump/adapters/coroutines/sync_void_awaitable.hpp"
+#include "wirepump/types/traits.hpp"
 
 namespace wirepump {
 
@@ -53,12 +54,14 @@ struct unexpected_eof : std::runtime_error {
     {}
 };
 
-template <concepts::ReadableStream S>
-auto read(S & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
-    ch = c.get();
-    if (c.eof()) throw unexpected_eof{};
-    return {};
-}
+template <concepts::ReadableStream Stream>
+struct traits::readable<Stream> {
+    static auto read_byte(Stream & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
+        ch = c.get();
+        if (c.eof()) throw unexpected_eof{};
+        return {};
+    }
+};
 
 namespace concepts {
 
@@ -86,10 +89,12 @@ concept WritableStream = details::is_writable_v<std::decay_t<T>>;
 
 }
 
-template <concepts::WritableStream S>
-auto write(S & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
-    c.put(ch);
-    return {};
-}
+template <concepts::WritableStream Stream>
+struct traits::writable<Stream> {
+    static auto write_byte(Stream & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
+        c.put(ch);
+        return {};
+    }
+};
 
 }

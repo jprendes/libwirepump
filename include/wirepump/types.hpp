@@ -1,5 +1,6 @@
 #pragma once
 
+#include "wirepump/types/byte.hpp"
 #include "wirepump/types/char.hpp"
 #include "wirepump/types/enum.hpp"
 #include "wirepump/types/floating_point.hpp"
