@@ -16,14 +16,14 @@ struct serialized {
       : wrapped(value)
     {}
 
-    template <typename Stream>
+    template <concepts::WritableStream Stream>
     friend
     Stream & operator<<(Stream & stream, serialized const & value) {
         write(stream, value.wrapped);
         return stream;
     }
 
-    template <typename Stream>
+    template <concepts::ReadableStream Stream>
     friend
     Stream & operator>>(Stream & stream, serialized & value) {
         static_assert(!std::is_const_v<T>, "Can't write to a const value");
@@ -31,7 +31,7 @@ struct serialized {
         return stream;
     }
 
-    template <typename Stream>
+    template <concepts::ReadableStream Stream>
     friend
     Stream & operator>>(Stream & stream, serialized && value) {
         static_assert(!std::is_const_v<T>, "Can't write to a const value");
