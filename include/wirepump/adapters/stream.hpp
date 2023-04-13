@@ -2,28 +2,12 @@
 
 #include <cstdint>
 #include <stdexcept>
-#include <type_traits>
-#include <utility>
+#include <concepts>
 
 #include "wirepump/adapters/coroutines/sync_void_awaitable.hpp"
 #include "wirepump/types/traits.hpp"
 
 namespace wirepump {
-
-namespace concepts {
-
-template<typename T>
-concept ReadableStream = requires(T stream, char c) {
-    stream.get(c);
-    { stream.eof() } -> std::same_as<bool>;
-};
-
-template<typename T>
-concept WritableStream = requires(T stream, char c) {
-    stream.put(c);
-};
-
-}
 
 struct unexpected_eof : std::runtime_error {
     unexpected_eof()
@@ -31,7 +15,11 @@ struct unexpected_eof : std::runtime_error {
     {}
 };
 
-template <concepts::ReadableStream Stream>
+template <typename Stream>
+    requires requires (Stream stream, char c) {
+        stream.get(c);
+        { stream.eof() } -> std::same_as<bool>;
+    }
 struct impl<Stream, uint8_t, READ_IMPL> {
     static auto read(Stream & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
         ch = c.get();
@@ -40,7 +28,10 @@ struct impl<Stream, uint8_t, READ_IMPL> {
     }
 };
 
-template <concepts::WritableStream Stream>
+template <typename Stream>
+    requires requires (Stream stream, char c) {
+        stream.put(c);
+    }
 struct impl<Stream, uint8_t, WRITE_IMPL> {
     static auto write(Stream & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
         c.put(ch);

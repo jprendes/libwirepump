@@ -26,6 +26,10 @@ inline void assert_impl(const char* expr_str, bool expr, const char* file, const
     }
 }
 
+#if defined(assert)
+#undef assert
+#endif
+
 #define assert(expr, msg) assert_impl(#expr, expr, __FILE__, __func__, __LINE__, msg)
 
 template <typename T>

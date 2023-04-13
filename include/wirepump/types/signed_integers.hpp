@@ -7,17 +7,11 @@
 #include <cstddef>
 #include <stdexcept>
 #include <type_traits>
+#include <concepts>
 
 namespace wirepump {
 
-namespace concepts {
-
-template<typename T>
-concept signed_integral = std::is_integral_v<T> && std::is_signed_v<T>;
-
-}
-
-template <typename Stream, concepts::signed_integral T>
+template <typename Stream, std::signed_integral T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         using U = std::make_unsigned_t<T>;

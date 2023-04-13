@@ -3,18 +3,11 @@
 #include "wirepump/types/traits.hpp"
 #include "wirepump/types/byte.hpp"
 
-#include <type_traits>
+#include <concepts>
 
 namespace wirepump {
 
-namespace concepts {
-
-template<typename T>
-concept floating_point = std::is_floating_point_v<T>;
-
-}
-
-template <typename Stream, concepts::floating_point T>
+template <typename Stream, std::floating_point T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & v) -> read_result<Stream> {
         union {

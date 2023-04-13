@@ -5,28 +5,20 @@
 #include "cista/reflection/for_each_field.h"
 #include "cista/reflection/to_tuple.h"
 
-#include <type_traits>
-
 namespace wirepump {
 
-namespace concepts {
-
-template<typename T>
-concept convertible_to_tuple = cista::to_tuple_works_v<T>;
-
-}
-
-template <typename Stream, concepts::convertible_to_tuple T>
+template <typename Stream, typename T>
+    requires cista::to_tuple_works_v<T>
 struct impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
-        co_await std::apply([&c](auto& ...v) -> read_result<Stream> {
-            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::read(c, v));
+        co_await std::apply([&c]<typename ...Tp>(Tp & ...v) -> read_result<Stream> {
+            (..., co_await impl<Stream, Tp>::read(c, v));
         }, cista::to_tuple(value));
     }
 
     static auto write(Stream & c, T const & value) -> write_result<Stream> {
-        co_await std::apply([&c](auto const & ...v) -> write_result<Stream> {
-            (..., co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::write(c, v));
+        co_await std::apply([&c]<typename ...Tp>(Tp const & ...v) -> write_result<Stream> {
+            (..., co_await impl<Stream, Tp>::write(c, v));
         }, cista::to_tuple(value));
     }
 };

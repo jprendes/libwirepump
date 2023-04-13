@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <variant>
 #include <stdexcept>
-#include <type_traits>
 
 namespace wirepump {
 
@@ -20,8 +19,8 @@ struct impl<Stream, std::variant<Tp...>> {
 
     static auto write(Stream & c, std::variant<Tp...> const & value) -> write_result<Stream> {
         co_await impl<Stream, size_t>::write(c, value.index());
-        co_await std::visit([&c](auto const & v) -> write_result<Stream> {
-            co_await impl<Stream, std::remove_cvref_t<decltype(v)>>::write(c, v);
+        co_await std::visit([&c]<typename T>(T const & v) -> write_result<Stream> {
+            co_await impl<Stream, T>::write(c, v);
         }, value);
     }
 
@@ -35,7 +34,7 @@ struct impl<Stream, std::variant<Tp...>> {
         } else {
             if (index == 0) {
                 std::variant_alternative_t<I, Variant> alternative;
-                co_await impl<Stream, std::remove_cvref_t<decltype(alternative)>>::read(c, alternative);
+                co_await impl<Stream, std::variant_alternative_t<I, Variant>>::read(c, alternative);
                 value = Variant{std::in_place_index<I>, std::move(alternative)};
             } else {
                 co_await read_impl<I + 1>(c, value, index - 1);
