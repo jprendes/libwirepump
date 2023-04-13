@@ -55,8 +55,8 @@ struct unexpected_eof : std::runtime_error {
 };
 
 template <concepts::ReadableStream Stream>
-struct traits::readable<Stream> {
-    static auto read_byte(Stream & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
+struct impl<Stream, uint8_t, READ_IMPL> {
+    static auto read(Stream & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
         ch = c.get();
         if (c.eof()) throw unexpected_eof{};
         return {};
@@ -90,8 +90,8 @@ concept WritableStream = details::is_writable_v<std::decay_t<T>>;
 }
 
 template <concepts::WritableStream Stream>
-struct traits::writable<Stream> {
-    static auto write_byte(Stream & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
+struct impl<Stream, uint8_t, WRITE_IMPL> {
+    static auto write(Stream & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
         c.put(ch);
         return {};
     }

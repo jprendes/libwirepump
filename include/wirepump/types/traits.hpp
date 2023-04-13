@@ -3,49 +3,36 @@
 #include <cstdint>
 #include <utility>
 
-namespace wirepump::traits {
+namespace wirepump {
+
+namespace traits {
 
 template <class T>
 inline constexpr bool always_false_v = false;
 
-template <typename Stream>
-struct readable {
-    static auto read_byte(Stream & c, uint8_t & ch) -> void {
-        static_assert(traits::always_false_v<Stream>, "Unimplemented byte reader");
-        return;
-    }
-};
-
-template <typename Stream>
-struct writable {
-    static auto write_byte(Stream & c, uint8_t const & ch) -> void {
-        static_assert(traits::always_false_v<Stream>, "Unimplemented byte writer");
-        return;
-    }
-};
-
 }
 
-namespace wirepump {
+inline constexpr int READ_IMPL = 1;
+inline constexpr int WRITE_IMPL = 2;
 
-template <typename Stream, typename T>
+template <typename Stream, typename T, int = 0>
 struct impl {
-    static auto read(Stream & c, T & v) -> void {
-        static_assert(traits::always_false_v<Stream>, "Unimplemented byte writer");
+    static auto read(Stream & c, T & v) {
+        static_assert(traits::always_false_v<Stream>, "Unimplemented reader");
         return;
     }
 
-    static auto write(Stream & c, T const & v) -> void {
-        static_assert(traits::always_false_v<Stream>, "Unimplemented byte writer");
+    static auto write(Stream & c, T const & v) {
+        static_assert(traits::always_false_v<Stream>, "Unimplemented writer");
         return;
     }
 };
 
 template <typename Stream>
-using read_result = decltype(wirepump::traits::readable<Stream>::read_byte(std::declval<Stream &>(), std::declval<uint8_t &>()));
+using read_result = decltype(wirepump::impl<Stream, uint8_t>::read(std::declval<Stream &>(), std::declval<uint8_t &>()));
 
 template <typename Stream>
-using write_result = decltype(wirepump::traits::writable<Stream>::write_byte(std::declval<Stream &>(), std::declval<uint8_t const &>()));
+using write_result = decltype(wirepump::impl<Stream, uint8_t>::write(std::declval<Stream &>(), std::declval<uint8_t const &>()));
 
 template <typename Stream, typename T>
 auto read(Stream & c, T & v) {
