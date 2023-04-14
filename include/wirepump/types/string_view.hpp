@@ -14,7 +14,7 @@ namespace wirepump {
 template <typename Stream>
 struct impl<Stream, std::string_view> {
     static auto read(Stream & c, std::string_view &) -> read_result<Stream> {
-        static_assert(requires { requires false; }, "Unimplemented read method. Read to a std::string instead");
+        static_assert(traits::always_false_v<Stream>, "Unimplemented read method. Read to a std::string instead");
         co_await std::suspend_never{}; // dummy co_await do that we have the correct return type
     }
 

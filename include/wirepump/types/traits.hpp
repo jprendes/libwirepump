@@ -5,19 +5,35 @@
 
 namespace wirepump {
 
+namespace traits {
+
+template<typename>
+inline constexpr bool always_false_v = false;
+
+}
+
 inline constexpr int READ_IMPL = 1;
 inline constexpr int WRITE_IMPL = 2;
 
 template <typename Stream, typename T, int = 0>
-struct impl {
-    static auto read(Stream & c, T & v) {
-        static_assert(requires {requires false;}, "Unimplemented reader");
-        return;
+struct impl;
+
+template <typename Stream, typename T>
+struct impl<Stream, T> {
+    static auto read(Stream & stream, T & v)
+        requires requires (Stream & stream, T & v) {
+            impl<Stream, T, READ_IMPL>::read(stream, v);
+        }
+    {
+        return impl<Stream, T, READ_IMPL>::read(stream, v);
     }
 
-    static auto write(Stream & c, T const & v) {
-        static_assert(requires {requires false;}, "Unimplemented writer");
-        return;
+    static auto write(Stream & stream, T const & v)
+        requires requires (Stream stream, T v) {
+            impl<Stream, T, WRITE_IMPL>::write(stream, v);
+        }
+    {
+        return impl<Stream, T, WRITE_IMPL>::write(stream, v);
     }
 };
 

@@ -39,7 +39,7 @@ int main(void) {
     auto expected = 
         "42\n"
         "pi=3.14\n";
-    assert(capture.str() == expected, "Output should match the expected value");
+    wp_assert(capture.str() == expected, "Output should match the expected value");
 
     return 0;
 }

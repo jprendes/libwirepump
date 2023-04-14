@@ -2,7 +2,6 @@
 
 #include "wirepump/types/traits.hpp"
 
-#include "cista/reflection/for_each_field.h"
 #include "cista/reflection/to_tuple.h"
 
 namespace wirepump {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "wirepump/types/traits.hpp"
-#include "wirepump/types/byte.hpp"
 
 #include <cstdint>
 #include <cstddef>
@@ -11,6 +10,7 @@
 namespace wirepump {
 
 template <typename Stream, std::unsigned_integral T>
+    requires (sizeof(T) > 1)
 struct impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         value = 0;

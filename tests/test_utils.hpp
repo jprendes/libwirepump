@@ -26,11 +26,7 @@ inline void assert_impl(const char* expr_str, bool expr, const char* file, const
     }
 }
 
-#if defined(assert)
-#undef assert
-#endif
-
-#define assert(expr, msg) assert_impl(#expr, expr, __FILE__, __func__, __LINE__, msg)
+#define wp_assert(expr, msg) assert_impl(#expr, expr, __FILE__, __func__, __LINE__, msg)
 
 template <typename T>
 T round_trip(T const & original) {
@@ -51,11 +47,11 @@ size_t serialized_size(T const & value) {
 #define assert_round_trip(T, value) \
     do { \
         T original = value; \
-        assert(original == round_trip<T>(original), "Value should be unchanged after a round-trip [" #T "]"); \
+        wp_assert(original == round_trip<T>(original), "Value should be unchanged after a round-trip [" #T "]"); \
     } while (0)
 
 #define assert_size(T, value, expected) \
     do { \
         T original = value; \
-        assert(serialized_size<T>(value) == expected, "Serialized size should be " #expected); \
+        wp_assert(serialized_size<T>(value) == expected, "Serialized size should be " #expected); \
     } while (0)

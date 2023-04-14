@@ -1,7 +1,6 @@
 #pragma once
 
 #include "wirepump/types/traits.hpp"
-#include "wirepump/types/byte.hpp"
 
 #include <cstdint>
 #include <utility>
