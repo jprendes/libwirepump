@@ -1,23 +1,20 @@
 #include "./test_utils.hpp"
-#include "asio/this_coro.hpp"
-#include "asio/use_awaitable.hpp"
-#include "asio/use_future.hpp"
 
 #include <asio.hpp>
-#include <asio/io_service.hpp>
-#include <asio/local/stream_protocol.hpp>
-#include <asio/local/connect_pair.hpp>
-#include <asio/co_spawn.hpp>
-#include <asio/detached.hpp>
-#include <asio/awaitable.hpp>
 #include <asio/experimental/awaitable_operators.hpp>
 
 #include <wirepump.hpp>
 
 #include <string>
 
-using namespace std::literals;
+#if defined(__GNUC__) && !defined(__clang__)
+#  include <features.h>
+#  if !__GNUC_PREREQ(13,0)
+#    define _WIREPUMP_OLDER_GCC
+#  endif
+#endif
 
+using namespace std::literals;
 using namespace asio::experimental::awaitable_operators;
 
 struct my_struct {
@@ -45,10 +42,15 @@ asio::awaitable<void> client(asio::local::stream_protocol::socket socket) {
     co_await wirepump::read(socket, double_msg);
     wp_assert(double_msg == 3.1415926, "Unexpected message");
 
-    // Use an intermediate variable since gcc doesn't like the commented out version.
-    // co_await wirepump::write(socket, my_struct{ 42, "hitchhiker" });
+#if defined(_WIREPUMP_OLDER_GCC)
+    // Use an intermediate variable for `my_struct` in older gcc versions.
+    // Looks like a compiler bug fixed in gcc 13.
+    // See https://godbolt.org/z/q1nMdej1W
     auto struct_msg = my_struct{ 42, "hitchhiker" };
     co_await wirepump::write(socket, struct_msg);
+#else
+    co_await wirepump::write(socket, my_struct{ 42, "hitchhiker" });
+#endif
 }
 
 asio::awaitable<int> async_main(asio::io_context & io_context) {
