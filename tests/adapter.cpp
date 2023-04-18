@@ -8,8 +8,6 @@ struct writer {
     std::stringstream & ss;
 };
 
-namespace wirepump {
-
 template <>
 struct wirepump::read_impl<reader, uint8_t> {
     static auto read(reader & c, uint8_t & ch) -> coroutines::sync_task<void> {
@@ -26,8 +24,6 @@ struct wirepump::write_impl<writer, uint8_t> {
         co_return;
     }
 };
-
-}
 
 int main(void) {
     std::stringstream ss;

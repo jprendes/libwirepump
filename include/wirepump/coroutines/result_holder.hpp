@@ -22,7 +22,7 @@ struct result_holder<void> {
 
     constexpr void return_void() noexcept {}
 
-    constexpr void get() && {
+    void get() && {
         if (m_exception) std::rethrow_exception(std::move(m_exception));
     }
 };
@@ -50,7 +50,7 @@ struct result_holder {
         m_value = std::move(value);
     }
 
-    constexpr T get() && {
+    T get() && {
         if (m_exception) std::rethrow_exception(std::move(m_exception));
         return std::move(m_value).value();
     }
