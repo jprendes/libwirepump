@@ -44,7 +44,7 @@ template <typename Stream>
         stream.async_read_some(asio::buffer(&c, 1), asio::use_awaitable);
         asio::async_read(stream, asio::buffer(&c, 1), asio::use_awaitable);
     }
-struct impl<Stream, uint8_t, READ_IMPL> {
+struct read_impl<Stream, uint8_t> {
     static auto read(Stream & stream, uint8_t & ch) -> asio::awaitable<void> {
         co_await asio::async_read(stream, asio::buffer(&ch, 1), asio::use_awaitable);
     }
@@ -65,7 +65,7 @@ template <typename Stream>
         stream.async_read_some(boost::asio::buffer(&c, 1), boost::asio::use_awaitable);
         boost::asio::async_read(stream, boost::asio::buffer(&c, 1), boost::asio::use_awaitable);
     }
-struct impl<Stream, uint8_t, READ_IMPL> {
+struct read_impl<Stream, uint8_t> {
     static auto read(Stream & stream, uint8_t & ch) -> boost::asio::awaitable<void> {
         co_await boost::asio::async_read(stream, boost::asio::buffer(&ch, 1), boost::asio::use_awaitable);
     }
@@ -88,7 +88,7 @@ template <typename Stream>
         stream.async_write_some(asio::buffer(&c, 1), asio::use_awaitable);
         asio::async_write(stream, asio::buffer(&c, 1), asio::use_awaitable);
     }
-struct impl<Stream, uint8_t, WRITE_IMPL> {
+struct write_impl<Stream, uint8_t> {
     static auto write(Stream & stream, uint8_t const & ch) -> asio::awaitable<void> {
         co_await asio::async_write(stream, asio::buffer(&ch, 1), asio::use_awaitable);
     }
@@ -109,7 +109,7 @@ template <typename Stream>
         stream.async_write_some(boost::asio::buffer(&c, 1), boost::asio::use_awaitable);
         boost::asio::async_write(stream, boost::asio::buffer(&c, 1), boost::asio::use_awaitable);
     }
-struct impl<Stream, uint8_t, WRITE_IMPL> {
+struct write_impl<Stream, uint8_t> {
     static auto write(Stream & stream, uint8_t const & ch) -> boost::asio::awaitable<void> {
         co_await boost::asio::async_write(stream, boost::asio::buffer(&ch, 1), boost::asio::use_awaitable);
     }

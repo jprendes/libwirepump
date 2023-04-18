@@ -11,13 +11,13 @@ namespace wirepump {
 
 template <typename Stream, std::unsigned_integral T>
     requires (sizeof(T) > 1)
-struct impl<Stream, T> {
+struct read_impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         value = 0;
         uint8_t byte = 0;
         size_t shift = 0;
         do {
-            co_await impl<Stream, uint8_t>::read(c, byte);
+            co_await wirepump::read(c, byte);
             T slice = byte & 0x7F;
             if ((shift >= (8 * sizeof(T)) && slice != 0) || slice << shift >> shift != slice) {
                 throw std::runtime_error("malformed uleb128, extends past end");
@@ -26,7 +26,11 @@ struct impl<Stream, T> {
             shift += 7;
         } while (byte & 0x80);
     }
+};
 
+template <typename Stream, std::unsigned_integral T>
+    requires (sizeof(T) > 1)
+struct write_impl<Stream, T> {
     static auto write(Stream & c, T const & v) -> write_result<Stream> {
         T value = v;
         do {
@@ -35,7 +39,7 @@ struct impl<Stream, T> {
             if (value != 0) {
                 byte |= 0x80;
             }
-            co_await impl<Stream, uint8_t>::write(c, byte);
+            co_await wirepump::write(c, byte);
         } while (value != 0);
     }
 };

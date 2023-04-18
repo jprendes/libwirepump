@@ -10,7 +10,7 @@ macro(make_test name)
     add_test(${name}-test-single-header ${name}-test-single-header)
 endmacro()
 
-foreach(test char integers enum floating_point string tuple variant vector demo asio)
+foreach(test char integers enum floating_point string tuple variant vector demo asio adapter)
     make_test(${test})
 endforeach()
 

@@ -12,14 +12,14 @@ namespace wirepump {
 
 template <typename Stream, std::signed_integral T>
     requires (sizeof(T) > 1)
-struct impl<Stream, T> {
+struct read_impl<Stream, T> {
     static auto read(Stream & c, T & value) -> read_result<Stream> {
         using U = std::make_unsigned_t<T>;
         value = 0;
         uint8_t byte = 0;
         size_t shift = 0;
         do {
-            co_await impl<Stream, uint8_t>::read(c, byte);
+            co_await wirepump::read(c, byte);
             U Slice = byte & 0x7f;
             if ((shift >= (8 * sizeof(T)) && Slice != (value < 0 ? 0x7f : 0x00)) ||
                 (shift == (8 * sizeof(T) - 1) && Slice != 0 && Slice != 0x7f)) {
@@ -33,7 +33,11 @@ struct impl<Stream, T> {
             value |= (~U{0}) << shift;
         }
     }
+};
 
+template <typename Stream, std::signed_integral T>
+    requires (sizeof(T) > 1)
+struct write_impl<Stream, T> {
     static auto write(Stream & c, T const & v) -> write_result<Stream> {
         T value = v;
         bool more;
@@ -46,7 +50,7 @@ struct impl<Stream, T> {
             if (more) {
                 byte |= 0x80; // Mark this byte to show that more bytes will follow.
             }
-            co_await impl<Stream, uint8_t>::write(c, byte);
+            co_await wirepump::write(c, byte);
         } while (more);
     }
 };

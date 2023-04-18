@@ -12,16 +12,19 @@
 namespace wirepump {
 
 template <typename Stream>
-struct impl<Stream, std::string_view> {
+struct read_impl<Stream, std::string_view> {
     static auto read(Stream & c, std::string_view &) -> read_result<Stream> {
-        static_assert(traits::always_false_v<Stream>, "Unimplemented read method. Read to a std::string instead");
-        co_await std::suspend_never{}; // dummy co_await do that we have the correct return type
+        static_assert(traits::always_false_v<Stream, std::string_view>, "Unimplemented read method. Read to a std::string instead");
+        co_return; // dummy co_return so that we have a coroutine
     }
+};
 
+template <typename Stream>
+struct write_impl<Stream, std::string_view> {
     static auto write(Stream & c, std::string_view const & value) -> write_result<Stream> {
-        co_await impl<Stream, size_t>::write(c, value.size());
+        co_await wirepump::write(c, value.size());
         for (auto const & entry : value) {
-            co_await impl<Stream, char>::write(c, entry);
+            co_await wirepump::write(c, entry);
         }
     }
 };

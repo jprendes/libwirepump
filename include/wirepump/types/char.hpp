@@ -8,13 +8,16 @@
 namespace wirepump {
 
 template <typename Stream>
-struct impl<Stream, char> {
+struct read_impl<Stream, char> {
     static auto read(Stream & c, char & ch) -> read_result<Stream> {
-        co_await impl<Stream, uint8_t>::read(c, (uint8_t &)ch);
+        co_await wirepump::read(c, (uint8_t &)ch);
     }
+};
 
+template <typename Stream>
+struct write_impl<Stream, char> {
     static auto write(Stream & c, char const & ch) -> write_result<Stream> {
-        co_await impl<Stream, uint8_t>::write(c, ch);
+        co_await wirepump::write(c, (uint8_t)ch);
     }
 };
 

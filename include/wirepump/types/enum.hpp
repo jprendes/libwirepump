@@ -10,13 +10,17 @@ namespace wirepump {
 
 template <typename Stream, typename T>
     requires std::is_enum_v<T>
-struct impl<Stream, T> {
+struct read_impl<Stream, T> {
     static auto read(Stream & c, T & v) -> read_result<Stream> {
-        co_await impl<Stream, std::underlying_type_t<T>>::read(c, (std::underlying_type_t<T>&)v);
+        co_await wirepump::read(c, (std::underlying_type_t<T>&)v);
     }
+};
 
+template <typename Stream, typename T>
+    requires std::is_enum_v<T>
+struct write_impl<Stream, T> {
     static auto write(Stream & c, T const & v) -> write_result<Stream> {
-        co_await impl<Stream, std::underlying_type_t<T>>::write(c, (std::underlying_type_t<T>)v);
+        co_await wirepump::write(c, (std::underlying_type_t<T>)v);
     }
 };
 
