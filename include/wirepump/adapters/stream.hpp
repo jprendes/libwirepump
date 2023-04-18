@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <concepts>
 
-#include "wirepump/adapters/coroutines/sync_void_awaitable.hpp"
-#include "wirepump/types/traits.hpp"
+#include "wirepump/coroutines/sync_task.hpp"
+#include "wirepump/impl.hpp"
 
 namespace wirepump {
 
@@ -21,10 +21,10 @@ template <typename Stream>
         { stream.eof() } -> std::same_as<bool>;
     }
 struct impl<Stream, uint8_t, READ_IMPL> {
-    static auto read(Stream & c, uint8_t & ch) -> adapters::coroutines::sync_void_awaitable {
+    static auto read(Stream & c, uint8_t & ch) -> coroutines::sync_task<void> {
         ch = c.get();
         if (c.eof()) throw unexpected_eof{};
-        return {};
+        co_return;
     }
 };
 
@@ -33,9 +33,9 @@ template <typename Stream>
         stream.put(c);
     }
 struct impl<Stream, uint8_t, WRITE_IMPL> {
-    static auto write(Stream & c, uint8_t const & ch) -> adapters::coroutines::sync_void_awaitable {
+    static auto write(Stream & c, uint8_t const & ch) -> coroutines::sync_task<void> {
         c.put(ch);
-        return {};
+        co_return;
     }
 };
 

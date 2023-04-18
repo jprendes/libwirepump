@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "wirepump/types/traits.hpp"
+#include "wirepump/impl.hpp"
 
 #if defined __has_include
 #  if __has_include (<asio/awaitable.hpp>)

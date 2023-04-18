@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wirepump/types/traits.hpp"
+#include "wirepump/impl.hpp"
 
 #include "cista/reflection/to_tuple.h"
 

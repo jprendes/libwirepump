@@ -29,15 +29,15 @@ struct Item {
 std::stringstream ss;
 
 // serialize
-ss << wirepump::serialized(42);
-ss << wirepump::serialized(Item{"pi", 3.14, {4, 3}});
+wirepump::write(ss, 42);
+wirepump::write(ss, Item{"pi", 3.14, {4, 3}});
 
 // deserialize
 int value;
-ss >> wirepump::serialized(value);
+wirepump::read(ss, value);
 std::cout << value << "\n"; // 42
 
 Item item;
-ss >> wirepump::serialized(item);
+wirepump::read(ss, item);
 std::cout << item.name << "=" << item.value << "\n"; // pi=3.14
 ```

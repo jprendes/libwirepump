@@ -1,6 +1,6 @@
 #pragma once
 
-#include "wirepump/types/traits.hpp"
+#include "wirepump/impl.hpp"
 #include "wirepump/types/signed_integers.hpp"
 #include "wirepump/types/unsigned_integers.hpp"
 

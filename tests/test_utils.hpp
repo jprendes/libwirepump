@@ -32,15 +32,15 @@ template <typename T>
 T round_trip(T const & original) {
     T copy;
     std::stringstream ss;
-    ss << wirepump::serialized(original);
-    ss >> wirepump::serialized(copy);
+    wirepump::write(ss, original);
+    wirepump::read(ss, copy);
     return copy;
 }
 
 template <typename T>
 size_t serialized_size(T const & value) {
     std::stringstream ss;
-    ss << wirepump::serialized(value);
+    wirepump::write(ss, value);
     return ss.str().size();
 }
 
