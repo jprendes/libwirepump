@@ -1,45 +1,33 @@
-#include "test_utils.hpp"
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include <wirepump.hpp>
 
 struct Item {
     std::string name;
     float value;
-    struct {
-        int x, y;
-    } position;
+    std::vector<std::string> tags;
+    bool operator==(Item const &) const = default;
 };
 
-void demo() {
+int main() {
     std::stringstream ss;
 
     // serialize
+    Item pi_item{"pi", 3.14f, {"circle", "irrational"}};
+
     wirepump::write(ss, 42);
-    wirepump::write(ss, Item{"pi", 3.14, {4, 3}});
+    wirepump::write(ss, pi_item);
 
     // deserialize
     int value;
     wirepump::read(ss, value);
-    std::cout << value << "\n"; // 42
+    assert(value == 42);
 
     Item item;
     wirepump::read(ss, item);
-    std::cout << item.name << "=" << item.value << "\n"; // pi=3.14
-}
-
-int main(void) {
-    std::stringstream capture;
-    auto cout_buff = std::cout.rdbuf();
-    std::cout.rdbuf(capture.rdbuf());
-
-    demo();
-
-    std::cout.rdbuf(cout_buff);
- 
-    auto expected = 
-        "42\n"
-        "pi=3.14\n";
-    wp_assert(capture.str() == expected, "Output should match the expected value");
+    assert(item == pi_item);
 
     return 0;
 }

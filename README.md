@@ -14,30 +14,84 @@ sudo cmake --install ./build/
 
 ## Getting started
 
-To serialize/deserialize an object wrap it with a `wirepump::serialized` and pipe it to/from a stream.
+To serialize/deserialize an object use the `wirepump::write`/`wirepump::read` methods.
+
+It works out of the box with stream-like objects:
 ```c++
+#include <sstream>
+#include <string>
+#include <vector>
+
 #include <wirepump.hpp>
 
 struct Item {
     std::string name;
     float value;
-    struct {
-        int x, y;
-    } position;
+    std::vector<std::string> tags;
+    bool operator==(Item const &) const = default;
 };
 
-std::stringstream ss;
+int main() {
+    std::stringstream ss;
 
-// serialize
-wirepump::write(ss, 42);
-wirepump::write(ss, Item{"pi", 3.14, {4, 3}});
+    // serialize
+    Item pi_item{"pi", 3.14f, {"circle", "irrational"}};
 
-// deserialize
-int value;
-wirepump::read(ss, value);
-std::cout << value << "\n"; // 42
+    wirepump::write(ss, 42);
+    wirepump::write(ss, pi_item);
 
-Item item;
-wirepump::read(ss, item);
-std::cout << item.name << "=" << item.value << "\n"; // pi=3.14
+    // deserialize
+    int value;
+    wirepump::read(ss, value);
+    assert(value == 42);
+
+    Item item;
+    wirepump::read(ss, item);
+    assert(item == pi_item);
+
+    return 0;
+}
+```
+
+It also provides support for [asio](https://think-async.com/Asio/) objects.
+```c++
+#include <asio.hpp>
+#include <string>
+#include <vector>
+
+#include <wirepump.hpp>
+
+struct Item {
+    std::string name;
+    float value;
+    std::vector<std::string> tags;
+    bool operator==(Item const &) const = default;
+};
+
+asio::awaitable<void> async_main(asio::io_context & ctx) {
+    asio::local::stream_protocol::socket source{ctx};
+    asio::local::stream_protocol::socket sink{ctx};
+    asio::local::connect_pair(source, sink);
+
+    Item pi_item{"pi", 3.14f, {"circle", "irrational"}};
+
+    co_await wirepump::write(sink, 42);
+    co_await wirepump::write(sink, pi_item);
+
+    int value;
+    co_await wirepump::read(source, value);
+    assert(value == 42); // ✓ ok
+
+    Item item;
+    co_await wirepump::read(source, item);
+    assert(item == pi_item); // ✓ ok
+}
+
+int main(void) {
+    asio::io_context ctx(1);
+    auto result = asio::co_spawn(ctx, async_main(ctx), asio::use_future);
+    ctx.run();
+    result.get();
+    return 0;
+}
 ```

@@ -10,9 +10,12 @@ macro(make_test name)
     add_test(${name}-test-single-header ${name}-test-single-header)
 endmacro()
 
-foreach(test char integers enum floating_point string tuple variant vector demo asio adapter)
+foreach(test char integers enum floating_point string tuple variant vector demo asio demo_asio adapter)
     make_test(${test})
 endforeach()
 
 target_link_libraries(asio-test asio)
 target_link_libraries(asio-test-single-header asio)
+
+target_link_libraries(demo_asio-test asio)
+target_link_libraries(demo_asio-test-single-header asio)
