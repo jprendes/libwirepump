@@ -1,21 +1,28 @@
 include(CTest)
 
-macro(make_test name)
-    add_executable(${name}-test ${name}.cpp)
-    target_link_libraries(${name}-test wirepump)
-    add_test(${name}-test ${name}-test)
+macro(wirepump_test name)
+    add_executable(wirepump-tests-${name} ${name}.cpp)
+    target_link_libraries(wirepump-tests-${name} wirepump)
+    add_test(wirepump-tests-${name} wirepump-tests-${name})
 
-    add_executable(${name}-test-single-header ${name}.cpp)
-    target_link_libraries(${name}-test-single-header wirepump-single-header)
-    add_test(${name}-test-single-header ${name}-test-single-header)
+    add_executable(wirepump-tests-single-header-${name} ${name}.cpp)
+    target_link_libraries(wirepump-tests-single-header-${name} wirepump-single-header)
+    add_test(wirepump-tests-single-header-${name} wirepump-tests-single-header-${name})
+
+    if(NOT "${ARGN}" STREQUAL "0")
+        if("${ARGV1}" STREQUAL "ASIO")
+            target_link_libraries(wirepump-tests-${name} wirepump-asio)
+            target_link_libraries(wirepump-tests-single-header-${name} wirepump-asio)
+        endif()
+    endif()
 endmacro()
 
-foreach(test char integers enum floating_point string tuple variant vector demo asio demo_asio adapter)
-    make_test(${test})
+# Basic tests
+foreach(test char integers enum floating_point string tuple variant vector demo adapter)
+    wirepump_test(${test})
 endforeach()
 
-target_link_libraries(asio-test asio)
-target_link_libraries(asio-test-single-header asio)
-
-target_link_libraries(demo_asio-test asio)
-target_link_libraries(demo_asio-test-single-header asio)
+# Tests depending on asio
+foreach(test asio demo_asio)
+    wirepump_test(${test} ASIO)
+endforeach()
