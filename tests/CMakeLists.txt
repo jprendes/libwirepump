@@ -18,7 +18,7 @@ macro(wirepump_test name)
 endmacro()
 
 # Basic tests
-foreach(test char integers enum floating_point string tuple variant vector demo adapter)
+foreach(test char bool integers enum floating_point string tuple optional variant vector demo adapter)
     wirepump_test(${test})
 endforeach()
 

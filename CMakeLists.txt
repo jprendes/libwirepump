@@ -11,10 +11,10 @@ include(cmake/asio.cmake)
 
 # The main library
 add_library(wirepump INTERFACE)
+target_compile_features(wirepump INTERFACE cxx_std_20)
 set_property(TARGET wirepump PROPERTY CXX_STANDARD 20)
 target_link_libraries(wirepump INTERFACE wirepump-cista)
 target_include_directories(wirepump INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_compile_features(wirepump INTERFACE cxx_std_20)
 
 # The single-header bundle
 add_subdirectory(bundler)
@@ -32,8 +32,9 @@ add_custom_command(
 add_custom_target(wirepump-single-header-build DEPENDS wirepump.hpp)
 
 add_library(wirepump-single-header INTERFACE)
-target_include_directories(wirepump-single-header INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_features(wirepump-single-header INTERFACE cxx_std_20)
+set_property(TARGET wirepump-single-header PROPERTY CXX_STANDARD 20)
+target_include_directories(wirepump-single-header INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 add_dependencies(wirepump-single-header wirepump-single-header-build)
 
 # Tests
