@@ -37,7 +37,9 @@ struct sync_task {
     }
 
     ~sync_task() {
-        if (m_handle) m_handle.destroy();
+        if (m_handle) {
+          std::move(*this).get();
+        }
     }
 
   private:
