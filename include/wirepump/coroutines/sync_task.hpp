@@ -26,13 +26,13 @@ struct sync_task {
         return { handle };
     }
 
-    T get() && noexcept {
+    T get() && {
         auto handle = m_handle;
         m_handle = nullptr;
         return awaitable{ handle }.await_resume();
     }
 
-    operator T() && noexcept {
+    operator T() && {
         return std::move(*this).get();
     }
 
