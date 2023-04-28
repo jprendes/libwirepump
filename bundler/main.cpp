@@ -55,13 +55,19 @@ struct bundler {
         
         while (std::getline(file, line)) {
             auto quote_include = R"xx(\s*#include\s*"([^/]+)/(.+)"\s*)xx";
+            auto quote_entry_include = R"xx(\s*#include\s*"([^/.]+)\.([^/.]+)"\s*)xx";
             auto angled_include = R"xx(\s*#include\s*<([^>]+)>\s*)xx";
             auto pragma_once = R"xx(\s*#pragma\s+once;?\s*)xx";
             if (auto m = match(line, pragma_once); !m.empty()) {
                 // no-op
             } else if (auto m = match(line, quote_include); !m.empty() && m_mapping.count(m[1])) {
+                // #include "library/path/to/header.hpp"
                 add(m_mapping[m[1]] + "/" + std::string{m[2]});
+            } else if (auto m = match(line, quote_entry_include); !m.empty() && m_mapping.count(m[1])) {
+                // #include "library.hpp"
+                add(m_mapping[m[1]] + "." + std::string{m[2]});
             } else if (auto m = match(line, angled_include); !m.empty()) {
+                // #include <something>
                 if (m_includes_done.count(m[1]) == 0) {
                     m_includes << line << '\n';
                     m_includes_done.insert(m[1]);
