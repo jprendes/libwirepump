@@ -36,10 +36,8 @@ struct sync_task {
         return std::move(*this).get();
     }
 
-    ~sync_task() {
-        if (m_handle) {
-          std::move(*this).get();
-        }
+    ~sync_task() noexcept(false) {
+        if (m_handle) std::move(*this).get();
     }
 
   private:
@@ -77,8 +75,8 @@ struct sync_task<T>::awaitable {
         return std::move(promise).get();
     }
 
-    ~awaitable() {
-        if (m_handle) m_handle.destroy();
+    ~awaitable() noexcept(false) {
+        if (m_handle) await_resume();
     }
 
   private:
